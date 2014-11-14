@@ -1,0 +1,30 @@
+{
+  "name": "ld-jsonstream",
+  "version": "0.0.1",
+  "author": {
+    "name": "Tim Kuijsten",
+    "email": "tim@netsend.nl",
+    "url": "https://github.com/timkuijsten"
+  },
+  "license": "MIT",
+  "description": "Simple and secure line delimited JSON stream parser",
+  "keywords": [
+    "line",
+    "delimited",
+    "json",
+    "stream",
+    "parser"
+  ],
+  "devDependencies": {
+    "mocha": ">=1.21.4",
+    "should": ">=1.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/timkuijsten/node-ld-jsonstream.git"
+  },
+  "bugs": "https://github.com/timkuijsten/node-ld-jsonstream/issues",
+  "scripts": {
+    "test": "mocha ./test"
+  }
+}
