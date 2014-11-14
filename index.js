@@ -90,7 +90,6 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
     if (~[0x0a, 0x0d].indexOf(this._buffer[this._docptr])) {
       found = true;
     }
-    //if (this._debug) { console.log(found, this._docptr, this._buffer[this._docptr], String.fromCharCode(this._buffer[this._docptr])); }
     this._docptr++;
   }
 
