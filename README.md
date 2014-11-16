@@ -50,6 +50,11 @@ as a JavaScript object.
     $ mocha test
 
 
+## TODO
+
+* implement [NDJSON](https://github.com/ndjson/ndjson-spec)
+
+
 ## License
 
 MIT
