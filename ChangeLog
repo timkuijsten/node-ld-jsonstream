@@ -1,6 +1,8 @@
-next release, Version 0.0.2
+2015.01.05, Version 0.0.2
 
-* add TODO
+* document events
+* relicense from MIT to ISC license
+* add TODO to readme
 * remove debugging
 
 
