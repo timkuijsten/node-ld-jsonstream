@@ -20,23 +20,26 @@ var util = require('util');
 var Transform = require('stream').Transform;
 
 /**
-* LDJSONStream
-*
-* Read a binary stream that contains new line separated JSON objects and emit each
-* as a JavaScript object.
-*
-* Goal: simple, dependency free and easily auditable in an attempt to be secure.
-*
-* Note: implements LDJSON (https://en.wikipedia.org/wiki/Line_Delimited_JSON)
-*
-* @param {Object} [opts] object containing optional parameters
-*
-* opts:
-* maxDocLength {Number, default 16777216} maximum JSON document size in bytes
-* maxBytes {Number, default infinite} maximum number of bytes to receive
-* debug {Boolean, default false} whether to do extra console logging or not
-* hide {Boolean, default false} whether to suppress errors or not (used in tests)
-*/
+ * LDJSONStream
+ *
+ * Read a binary stream that contains new line separated JSON objects and emit each
+ * as a JavaScript object.
+ *
+ * Goal: simple, dependency free and easily auditable in an attempt to be secure.
+ *
+ * Note: implements LDJSON (https://en.wikipedia.org/wiki/Line_Delimited_JSON)
+ *
+ * @param {Object} [opts] object containing optional parameters
+ *
+ * opts:
+ *  maxDocLength {Number, default 16777216} maximum JSON document size in bytes
+ *  maxBytes {Number, default infinite} maximum number of bytes to receive
+ *  debug {Boolean, default false} whether to do extra console logging or not
+ *  hide {Boolean, default false} whether to suppress errors or not (used in tests)
+ *
+ * @event "data" {Object}  emits one object at a time
+ * @event "end"  emitted once the underlying cursor is closed
+ */
 function LDJSONStream(opts) {
   if (typeof opts !== 'undefined' && typeof opts !== 'object') { throw new TypeError('opts must be an object'); }
   opts = opts || {};

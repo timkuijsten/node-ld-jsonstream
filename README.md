@@ -41,13 +41,17 @@ opts:
 * debug {Boolean, default false} whether to do extra console logging or not
 * hide {Boolean, default false} whether to suppress errors or not (used in tests)
 
+events:
+* "data" {Object}  emits one object at a time
+* "end"  stream end
+
 Read a binary stream that contains new line separated JSON objects and emit each
 as a JavaScript object.
 
 
 ## Tests
 
-    $ mocha test
+    $ npm test
 
 
 ## TODO
