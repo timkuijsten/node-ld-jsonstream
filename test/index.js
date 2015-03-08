@@ -79,6 +79,18 @@ describe('LDJSONStream', function() {
     ls.end('{}\n');
   });
 
+  it('should reset buffer after more than maxBytes are written', function(done) {
+    var ls = new LDJSONStream({ maxBytes: 2 });
+    ls.on('error', function(err) {
+      should.strictEqual(err.message, 'more than maxBytes received');
+      should.strictEqual(ls._buffer.length, 0);
+      done();
+    });
+    ls.on('data', function() { throw Error('incomplete object emitted'); });
+    ls.write('{ ');
+    ls.end('"foo": "bar" }\n');
+  });
+
   it('should err when maxDocLength is exceeded', function(done) {
     var ls = new LDJSONStream({ maxDocLength: 1 });
     ls.on('data', function() { throw Error('incomplete object emitted'); });

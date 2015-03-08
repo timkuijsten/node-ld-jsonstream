@@ -25,7 +25,7 @@ var Transform = require('stream').Transform;
  * Read a binary stream that contains new line separated JSON objects and emit each
  * as a JavaScript object.
  *
- * Goal: simple, dependency free and easily auditable in an attempt to be secure.
+ * Goal: simple, dependency free and easy to audit in an attempt to be secure.
  *
  * Note: implements LDJSON (https://en.wikipedia.org/wiki/Line_Delimited_JSON)
  *
@@ -155,6 +155,7 @@ LDJSONStream.prototype._transform = function _transform(chunk, encoding, cb) {
   var newLength = this._buffer.length + chunk.length;
 
   if (this._maxBytes && newLength > this._maxBytes) {
+    this._reset();
     cb(new Error('more than maxBytes received'));
     return;
   }
