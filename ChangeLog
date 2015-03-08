@@ -1,3 +1,6 @@
+2015.03.08, Version 0.0.3
+
+* reset buffer if maxBytes received
 * relicense test from MIT to ISC license
 
 
