@@ -1,3 +1,9 @@
+2015.12.15, Version 0.0.4
+
+* debug error and data in buffer on parse error
+* add item to the todo
+
+
 2015.03.08, Version 0.0.3
 
 * reset buffer if maxBytes received
