@@ -121,7 +121,7 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
     if (this._debug) { console.log('parse', rawdoc.toString()); }
     obj = JSON.parse(rawdoc);
   } catch (err) {
-    if (this._debug) { console.error(err); }
+    if (this._debug) { console.error(err, rawdoc); }
 
     // support multi-line JSON
     if (err.message === 'Unexpected end of input') {
@@ -181,6 +181,7 @@ LDJSONStream.prototype._flush = function _flush(cb) {
     this._reset();
     cb();
   } catch (err) {
+    if (this._debug) { console.error(err, this._buffer); }
     this._reset();
     cb(err);
   }
