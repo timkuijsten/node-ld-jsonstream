@@ -56,6 +56,7 @@ as a JavaScript object.
 
 ## TODO
 
+* handle cases where ldjson packets are followed by other types of data (i.e. bson)
 * implement [NDJSON](https://github.com/ndjson/ndjson-spec)
 
 
