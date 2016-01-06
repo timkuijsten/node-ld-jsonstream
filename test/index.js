@@ -83,7 +83,7 @@ describe('LDJSONStream', function() {
     var ls = new LDJSONStream({ maxBytes: 2 });
     ls.on('error', function(err) {
       should.strictEqual(err.message, 'more than maxBytes received');
-      should.strictEqual(ls._buffer.length, 0);
+      should.strictEqual(ls.buffer.length, 0);
       done();
     });
     ls.on('data', function() { throw Error('incomplete object emitted'); });

@@ -49,6 +49,9 @@ events:
 Read a binary stream that contains new line separated JSON objects and emit each
 as a JavaScript object.
 
+### this.buffer
+* {Buffer} internal buffer, part of the public api
+
 
 ## Tests
 
@@ -57,7 +60,6 @@ as a JavaScript object.
 
 ## TODO
 
-* handle cases where ldjson packets are followed by other types of data (i.e. bson)
 * implement [NDJSON](https://github.com/ndjson/ndjson-spec)
 
 

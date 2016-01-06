@@ -79,7 +79,7 @@ module.exports = LDJSONStream;
 LDJSONStream.prototype._reset = function _reset() {
   if (this._debug) { console.log('_reset'); }
 
-  this._buffer = new Buffer(0);
+  this.buffer = new Buffer(0);
   this._docptr = 0;
 };
 
@@ -89,8 +89,8 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
 
   // move pointer to first newline character
   var found = false;
-  while (!found && this._docptr < this._buffer.length) {
-    if (~[0x0a, 0x0d].indexOf(this._buffer[this._docptr])) {
+  while (!found && this._docptr < this.buffer.length) {
+    if (~[0x0a, 0x0d].indexOf(this.buffer[this._docptr])) {
       found = true;
     }
     this._docptr++;
@@ -98,7 +98,7 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
 
   // if a newline is found, check if it's a carriage return followed by a newline
   var crnl = false;
-  if (found && this._docptr < this._buffer.length && this._buffer[this._docptr] === 0x0d && this._buffer[this._docptr + 1] === 0x0a) {
+  if (found && this._docptr < this.buffer.length && this.buffer[this._docptr] === 0x0d && this.buffer[this._docptr + 1] === 0x0a) {
     this._docptr++;
     crnl = true;
   }
@@ -119,7 +119,7 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
 
   // since a newline is found, try to read and parse it as JSON
 
-  var rawdoc = this._buffer.slice(0, this._docptr);
+  var rawdoc = this.buffer.slice(0, this._docptr);
   var obj;
 
   try {
@@ -140,14 +140,14 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
   }
 
   // shift document from internal buffer and nullify expected document length
-  this._buffer = this._buffer.slice(this._docptr);
+  this.buffer = this.buffer.slice(this._docptr);
   this._docptr = 0;
 
   // push the parsed doc out to the reader
   this.push(obj);
 
   // check if there might be any new document that can be parsed
-  if (this._buffer.length) {
+  if (this.buffer.length) {
     this._parseDocs(cb);
   } else {
     cb();
@@ -157,7 +157,7 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
 LDJSONStream.prototype._transform = function _transform(chunk, encoding, cb) {
   if (this._debug) { console.log('_transform', chunk); }
 
-  var newLength = this._buffer.length + chunk.length;
+  var newLength = this.buffer.length + chunk.length;
 
   if (this._maxBytes && newLength > this._maxBytes) {
     this._reset();
@@ -165,7 +165,7 @@ LDJSONStream.prototype._transform = function _transform(chunk, encoding, cb) {
     return;
   }
 
-  this._buffer = Buffer.concat([this._buffer, chunk], newLength);
+  this.buffer = Buffer.concat([this.buffer, chunk], newLength);
   this._parseDocs(cb);
 };
 
@@ -174,12 +174,12 @@ LDJSONStream.prototype._flush = function _flush(cb) {
   if (this._debug) { console.log('_flush'); }
 
   if (!this._flushOpt) { cb(); return; }
-  if (!this._buffer.length) { cb(); return; }
+  if (!this.buffer.length) { cb(); return; }
 
   var obj;
 
   try {
-    obj = JSON.parse(this._buffer);
+    obj = JSON.parse(this.buffer);
 
     // push the parsed doc out to the reader
     this.push(obj);
@@ -187,7 +187,7 @@ LDJSONStream.prototype._flush = function _flush(cb) {
     this._reset();
     cb();
   } catch (err) {
-    if (this._debug) { console.error(err, this._buffer); }
+    if (this._debug) { console.error(err, this.buffer); }
     this._reset();
     cb(err);
   }
