@@ -38,6 +38,7 @@ Write two JSON objects to stdout:
 opts:
 * maxDocLength {Number, default 16777216} maximum JSON document size in bytes
 * maxBytes {Number, default infinite} maximum number of bytes to receive
+* flush {Boolean, default true} whether to flush any remaining data on writer end
 * debug {Boolean, default false} whether to do extra console logging or not
 * hide {Boolean, default false} whether to suppress errors or not (used in tests)
 
@@ -64,7 +65,7 @@ as a JavaScript object.
 
 ISC
 
-Copyright (c) 2014, 2015 Tim Kuijsten
+Copyright (c) 2014, 2015, 2016 Tim Kuijsten
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above

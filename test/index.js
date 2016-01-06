@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014, 2015 Tim Kuijsten
+ * Copyright (c) 2014, 2015, 2016 Tim Kuijsten
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -244,5 +244,36 @@ describe('LDJSONStream', function() {
     ls.write(JSON.stringify(obj1) + '\n' + noise + '\n' + JSON.stringify(obj2));
     ls.write('\n' + JSON.stringify(obj2));
     ls.end();
+  });
+
+  it('should not flush if noflush is set', function(done) {
+    var obj1 = {
+      foo: 'bar'
+    };
+
+    var obj2 = {
+      foo: 'baz',
+      bar: 42,
+      baz: false,
+      qux: null
+    };
+
+    var ls = new LDJSONStream({ flush: false });
+
+    var arr = [];
+
+    ls.on('data', function(data) {
+      arr.push(data);
+    });
+
+    ls.on('end', function() {
+      should.strictEqual(arr.length, 1);
+      should.deepEqual(arr[0], {
+        foo: 'bar'
+      });
+      done();
+    });
+
+    ls.end(JSON.stringify(obj1) + '\r\n' + JSON.stringify(obj2));
   });
 });

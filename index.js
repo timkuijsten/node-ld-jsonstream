@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014, 2015 Tim Kuijsten
+ * Copyright (c) 2014, 2015, 2016 Tim Kuijsten
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -13,6 +13,8 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+
+/* jshint -W116 */
 
 'use strict';
 
@@ -34,6 +36,7 @@ var Transform = require('stream').Transform;
  * opts:
  *  maxDocLength {Number, default 16777216} maximum JSON document size in bytes
  *  maxBytes {Number, default infinite} maximum number of bytes to receive
+ *  flush {Boolean, default true} whether to flush any remaining data on writer end
  *  debug {Boolean, default false} whether to do extra console logging or not
  *  hide {Boolean, default false} whether to suppress errors or not (used in tests)
  *
@@ -41,13 +44,14 @@ var Transform = require('stream').Transform;
  * @event "end"  emitted once the underlying cursor is closed
  */
 function LDJSONStream(opts) {
-  if (typeof opts !== 'undefined' && typeof opts !== 'object') { throw new TypeError('opts must be an object'); }
-  opts = opts || {};
+  if (opts == null) { opts = {}; }
+  if (typeof opts !== 'object') { throw new TypeError('opts must be an object'); }
 
-  if (typeof opts.maxDocLength !== 'undefined' && typeof opts.maxDocLength !== 'number') { throw new TypeError('opts.maxDocLength must be a number'); }
-  if (typeof opts.maxBytes !== 'undefined' && typeof opts.maxBytes !== 'number') { throw new TypeError('opts.maxBytes must be a number'); }
-  if (typeof opts.debug !== 'undefined' && typeof opts.debug !== 'boolean') { throw new TypeError('opts.debug must be a boolean'); }
-  if (typeof opts.hide !== 'undefined' && typeof opts.hide !== 'boolean') { throw new TypeError('opts.hide must be a boolean'); }
+  if (opts.maxDocLength != null && typeof opts.maxDocLength !== 'number') { throw new TypeError('opts.maxDocLength must be a number'); }
+  if (opts.maxBytes != null && typeof opts.maxBytes !== 'number') { throw new TypeError('opts.maxBytes must be a number'); }
+  if (opts.flush != null && typeof opts.flush !== 'boolean') { throw new TypeError('opts.flush must be a boolean'); }
+  if (opts.debug != null && typeof opts.debug !== 'boolean') { throw new TypeError('opts.debug must be a boolean'); }
+  if (opts.hide != null && typeof opts.hide !== 'boolean') { throw new TypeError('opts.hide must be a boolean'); }
 
   Transform.call(this, opts);
 
@@ -55,6 +59,7 @@ function LDJSONStream(opts) {
 
   this._maxBytes = opts.maxBytes;
 
+  this._flushOpt = opts.flush != null ? opts.flush : true;
   this._debug = opts.debug || false;
   this._hide = !!opts.hide;
 
@@ -168,6 +173,7 @@ LDJSONStream.prototype._transform = function _transform(chunk, encoding, cb) {
 LDJSONStream.prototype._flush = function _flush(cb) {
   if (this._debug) { console.log('_flush'); }
 
+  if (!this._flushOpt) { cb(); return; }
   if (!this._buffer.length) { cb(); return; }
 
   var obj;
