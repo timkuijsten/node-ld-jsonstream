@@ -35,6 +35,7 @@ var Transform = require('stream').Transform;
  *
  * opts:
  *  maxDocLength {Number, default 16777216} maximum JSON document size in bytes
+ *  maxDocs {Number, default infinite} maximum number of documents to receive
  *  maxBytes {Number, default infinite} maximum number of bytes to receive
  *  flush {Boolean, default true} whether to flush any remaining data on writer end
  *  debug {Boolean, default false} whether to do extra console logging or not
@@ -48,6 +49,7 @@ function LDJSONStream(opts) {
   if (typeof opts !== 'object') { throw new TypeError('opts must be an object'); }
 
   if (opts.maxDocLength != null && typeof opts.maxDocLength !== 'number') { throw new TypeError('opts.maxDocLength must be a number'); }
+  if (opts.maxDocs != null && typeof opts.maxDocs !== 'number') { throw new TypeError('opts.maxDocs must be a number'); }
   if (opts.maxBytes != null && typeof opts.maxBytes !== 'number') { throw new TypeError('opts.maxBytes must be a number'); }
   if (opts.flush != null && typeof opts.flush !== 'boolean') { throw new TypeError('opts.flush must be a boolean'); }
   if (opts.debug != null && typeof opts.debug !== 'boolean') { throw new TypeError('opts.debug must be a boolean'); }
@@ -58,12 +60,14 @@ function LDJSONStream(opts) {
   this._maxDocLength = opts.maxDocLength || 16777216;
 
   this._maxBytes = opts.maxBytes;
+  this._maxDocs = opts.maxDocs;
 
   this._flushOpt = opts.flush != null ? opts.flush : true;
   this._debug = opts.debug || false;
   this._hide = !!opts.hide;
 
   this.bytesRead = 0;
+  this.docsRead  = 0;
 
   this._writableState.objectMode = false;
   this._readableState.objectMode = true;
@@ -88,6 +92,8 @@ LDJSONStream.prototype._reset = function _reset() {
 // read up to the next newline
 LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
   if (this._debug) { console.log('_parseDocs'); }
+
+  if (this._maxDocs && this.docsRead >= this._maxDocs) { cb(); return; }
 
   // move pointer to first newline character
   var found = false;
@@ -147,6 +153,7 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
 
   // push the parsed doc out to the reader
   this.push(obj);
+  this.docsRead++;
 
   // check if there might be any new document that can be parsed
   if (this.buffer.length) {
@@ -179,6 +186,7 @@ LDJSONStream.prototype._flush = function _flush(cb) {
 
   if (!this._flushOpt) { cb(); return; }
   if (!this.buffer.length) { cb(); return; }
+  if (this._maxDocs && this.docsRead >= this._maxDocs) { cb(); return; }
 
   var obj;
 
@@ -187,6 +195,7 @@ LDJSONStream.prototype._flush = function _flush(cb) {
 
     // push the parsed doc out to the reader
     this.push(obj);
+    this.docsRead++;
 
     this._reset();
     cb();

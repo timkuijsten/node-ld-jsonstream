@@ -37,6 +37,7 @@ Write two JSON objects to stdout:
 
 opts:
 * maxDocLength {Number, default 16777216} maximum JSON document size in bytes
+* maxDocs {Number, default infinite} maximum number of documents to receive
 * maxBytes {Number, default infinite} maximum number of bytes to receive
 * flush {Boolean, default true} whether to flush any remaining data on writer end
 * debug {Boolean, default false} whether to do extra console logging or not

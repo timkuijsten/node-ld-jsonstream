@@ -31,6 +31,10 @@ describe('LDJSONStream', function() {
     (function() { var ls = new LDJSONStream({ maxDocLength: '' }); return ls; }).should.throw('opts.maxDocLength must be a number');
   });
 
+  it('should require opts.maxDocs to be a number', function() {
+    (function() { var ls = new LDJSONStream({ maxDocs: '' }); return ls; }).should.throw('opts.maxDocs must be a number');
+  });
+
   it('should require opts.maxBytes to be a number', function() {
     (function() { var ls = new LDJSONStream({ maxBytes: '' }); return ls; }).should.throw('opts.maxBytes must be a number');
   });
@@ -67,6 +71,35 @@ describe('LDJSONStream', function() {
       done();
     });
     ls.end('{}\n');
+  });
+
+  it('should emit two valid empty objects', function(done) {
+    var ls = new LDJSONStream();
+    var i = 0;
+    ls.on('data', function(obj) {
+      i++;
+      should.deepEqual(obj, {});
+    });
+    ls.on('end', function() {
+      should.strictEqual(i, 2);
+      done();
+    });
+    ls.end('{}\n{}\n');
+  });
+
+  it('should use maxDocs and leave the rest in the buffer', function(done) {
+    var ls = new LDJSONStream({ maxDocs: 1 });
+    var i = 0;
+    ls.on('data', function(obj) {
+      i++;
+      should.deepEqual(obj, {});
+    });
+    ls.on('end', function() {
+      should.strictEqual(i, 1);
+      should.strictEqual(ls.buffer.toString('hex'), '7b7d0a');
+      done();
+    });
+    ls.end('{}\n{}\n');
   });
 
   it('should err when more than maxBytes are written', function(done) {
