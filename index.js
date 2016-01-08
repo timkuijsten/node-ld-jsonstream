@@ -63,6 +63,8 @@ function LDJSONStream(opts) {
   this._debug = opts.debug || false;
   this._hide = !!opts.hide;
 
+  this.bytesRead = 0;
+
   this._writableState.objectMode = false;
   this._readableState.objectMode = true;
 
@@ -157,13 +159,15 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
 LDJSONStream.prototype._transform = function _transform(chunk, encoding, cb) {
   if (this._debug) { console.log('_transform', chunk); }
 
-  var newLength = this.buffer.length + chunk.length;
+  this.bytesRead += chunk.length;
 
-  if (this._maxBytes && newLength > this._maxBytes) {
+  if (this._maxBytes && this.bytesRead > this._maxBytes) {
     this._reset();
     cb(new Error('more than maxBytes received'));
     return;
   }
+
+  var newLength = this.buffer.length + chunk.length;
 
   this.buffer = Buffer.concat([this.buffer, chunk], newLength);
   this._parseDocs(cb);

@@ -50,7 +50,10 @@ Read a binary stream that contains new line separated JSON objects and emit each
 as a JavaScript object.
 
 ### this.buffer
-* {Buffer} internal buffer, part of the public api
+* {Buffer} buffer, can be used to manually flush any remaining bytes
+
+### this.bytesRead
+* {Number} total number of bytes read
 
 
 ## Tests
