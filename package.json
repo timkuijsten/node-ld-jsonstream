@@ -16,8 +16,7 @@
     "parser"
   ],
   "devDependencies": {
-    "mocha": ">=1.21.4",
-    "should": ">=1.2.2"
+    "async": "^1.5.2"
   },
   "repository": {
     "type": "git",
@@ -25,6 +24,6 @@
   },
   "bugs": "https://github.com/timkuijsten/node-ld-jsonstream/issues",
   "scripts": {
-    "test": "mocha ./test"
+    "test": "node test"
   }
 }

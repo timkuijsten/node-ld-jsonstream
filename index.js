@@ -29,7 +29,7 @@ var Transform = require('stream').Transform;
  *
  * Goal: simple, dependency free and easy to audit in an attempt to be secure.
  *
- * Note: implements LDJSON (https://en.wikipedia.org/wiki/Line_Delimited_JSON)
+ * Note: implements both LDJSON and NDJSON.
  *
  * @param {Object} [opts] object containing optional parameters
  *
@@ -137,7 +137,7 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
     if (this._debug) { console.error(err, rawdoc); }
 
     // support multi-line JSON
-    if (err.message === 'Unexpected end of input') {
+    if (err.message === 'Unexpected end of JSON input') {
       // look for next newline
       this._parseDocs(cb);
     } else {
