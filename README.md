@@ -6,8 +6,9 @@ as a JavaScript object.
 Goal: simple, dependency free and easily auditable in an attempt to be secure.
 
 Notes:
-* implements LDJSON (https://en.wikipedia.org/wiki/Line_Delimited_JSON)
-* based on bson-stream (https://www.npmjs.org/package/bson-stream)
+* implements [LDJSON](https://en.wikipedia.org/wiki/Line_Delimited_JSON)
+* implements [NDJSON](http://ndjson.org/)
+* based on [bson-stream](https://www.npmjs.org/package/bson-stream)
 
 
 ## Example
@@ -60,11 +61,6 @@ as a JavaScript object.
 ## Tests
 
     $ npm test
-
-
-## TODO
-
-* implement [NDJSON](https://github.com/ndjson/ndjson-spec)
 
 
 ## License
