@@ -15,20 +15,24 @@ Notes:
 
 Write two JSON objects to stdout:
 
-    var LDJSONStream = require('ld-jsonstream');
+```js
+var LDJSONStream = require('ld-jsonstream');
 
-    var ls = new LDJSONStream();
+var ls = new LDJSONStream();
 
-    ls.on('data', function(obj) {
-      console.log(obj);
-    });
+ls.on('data', function(obj) {
+  console.log(obj);
+});
 
-    ls.write('{ "foo" : "bar" }\n{ "foo" : "baz" }\n');
+ls.write('{ "foo" : "bar" }\n{ "foo" : "baz" }\n');
+```
 
 
 ## Installation
 
-    $ npm install ld-jsonstream
+```sh
+$ npm install ld-jsonstream
+```
 
 
 ## API
@@ -60,7 +64,9 @@ as a JavaScript object.
 
 ## Tests
 
-    $ npm test
+```sh
+$ npm test
+```
 
 
 ## License
