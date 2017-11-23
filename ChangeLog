@@ -1,3 +1,8 @@
+2017.11.23, Version 1.0.1
+
+* update readme use markdown syntax highlighting
+
+
 2017.04.25, Version 1.0.0
 
 * fix running with Node 6.9.1 and test with assert
