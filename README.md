@@ -16,7 +16,7 @@ A simple filter that logs all objects that have the *name* *baz*:
 
 ```js
 const Writable = require('stream').Writable;
-const LDJSONStream = require('.');
+const LDJSONStream = require('ld-jsonstream');
 
 var ls = new LDJSONStream({ objectMode: true });
 
