@@ -1,9 +1,9 @@
 {
   "name": "ld-jsonstream",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "author": {
     "name": "Tim Kuijsten",
-    "email": "tim@netsend.nl",
+    "email": "info+npm@netsend.nl",
     "url": "https://github.com/timkuijsten"
   },
   "license": "ISC",
