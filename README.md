@@ -12,19 +12,29 @@ Features:
 
 ## Example
 
-Write two JSON objects to stdout:
+A simple filter that logs all objects that have the *name* *baz*:
 
 ```js
-var LDJSONStream = require('ld-jsonstream');
+const Writable = require('stream').Writable;
+const LDJSONStream = require('.');
 
 var ls = new LDJSONStream({ objectMode: true });
 
-ls.on('data', function(obj) {
-  console.log(obj);
-});
+ls.pipe(new Writable({
+  objectMode: true,
+  write: function(obj, encoding, cb) {
+    if (obj.name === 'baz') {
+      console.log(obj);
+    }
+    cb();
+  }
+}));
 
-ls.write('{ "foo" : "bar" }\n{ "foo" : "baz" }\n');
+ls.write('{ "name" : "bar" }\n{ "name" : "baz" }\n');
 ```
+
+A more practical use case would be to read from stdin with something like:
+`process.stdin.pipe(ls)`.
 
 
 ## Installation
