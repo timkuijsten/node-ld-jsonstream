@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014, 2016 Tim Kuijsten
+ * Copyright (c) 2014, 2016, 2019 Tim Kuijsten
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -52,8 +52,8 @@ tasks.push(function(done) {
 /* should emit one valid empty object */
 tasks.push(function(done) {
   var ls = new LDJSONStream();
-  ls.on('data', function(obj) {
-    assert.deepEqual(obj, {});
+  ls.on('data', function(buf) {
+    assert.strictEqual(buf.toString(), '{}\n');
     done();
   });
   ls.end('{}\n');
@@ -62,6 +62,21 @@ tasks.push(function(done) {
 /* should emit two valid empty objects */
 tasks.push(function(done) {
   var ls = new LDJSONStream();
+  var i = 0;
+  ls.on('data', function(buf) {
+    i++;
+    assert.strictEqual(buf.toString(), '{}\n');
+  });
+  ls.on('end', function() {
+    assert.strictEqual(i, 2);
+    done();
+  });
+  ls.end('{}\n{}\n');
+});
+
+/* should emit two valid empty objects in object mode */
+tasks.push(function(done) {
+  var ls = new LDJSONStream({ objectMode: true });
   var i = 0;
   ls.on('data', function(obj) {
     i++;
@@ -78,9 +93,9 @@ tasks.push(function(done) {
 tasks.push(function(done) {
   var ls = new LDJSONStream({ maxDocs: 1 });
   var i = 0;
-  ls.on('data', function(obj) {
+  ls.on('data', function(buf) {
     i++;
-    assert.deepEqual(obj, {});
+    assert.strictEqual(buf.toString(), '{}\n');
   });
   ls.on('end', function() {
     assert.strictEqual(i, 1);
@@ -160,7 +175,7 @@ tasks.push(function(done) {
 
 /* should support multi-line json */
 tasks.push(function(done) {
-  var ls = new LDJSONStream();
+  var ls = new LDJSONStream({ objectMode: true });
   ls.on('data', function(obj) {
     assert.deepEqual(obj, {
       foo: 'bar'
@@ -179,7 +194,7 @@ tasks.push(function(done) {
     qux: null
   };
 
-  var ls = new LDJSONStream();
+  var ls = new LDJSONStream({ objectMode: true });
   ls.on('data', function(data) {
     assert.deepEqual(data, {
       foo: 'bar',
@@ -205,7 +220,7 @@ tasks.push(function(done) {
     qux: null
   };
 
-  var ls = new LDJSONStream();
+  var ls = new LDJSONStream({ objectMode: true });
 
   var arr = [];
 
@@ -245,7 +260,7 @@ tasks.push(function(done) {
     qux: null
   };
 
-  var ls = new LDJSONStream({ debug: false });
+  var ls = new LDJSONStream({ objectMode: true });
 
   var arr = [];
 
@@ -290,7 +305,7 @@ tasks.push(function(done) {
     qux: null
   };
 
-  var ls = new LDJSONStream({ flush: false });
+  var ls = new LDJSONStream({ flush: false, objectMode: true });
 
   var arr = [];
 

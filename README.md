@@ -1,14 +1,13 @@
 # LDJSONStream
 
-Read a binary stream that contains new line separated JSON objects and emit each
-as a JavaScript object.
+Parse a binary stream of stringified new line separated JSON objects and write
+to output. Implements a Transform stream.
 
-Goal: simple, dependency free and easily auditable in an attempt to be secure.
-
-Notes:
-* implements [LDJSON](https://en.wikipedia.org/wiki/Line_Delimited_JSON)
-* implements [NDJSON](http://ndjson.org/)
-* based on [bson-stream](https://www.npmjs.org/package/bson-stream)
+Features:
+* [LDJSON](https://en.wikipedia.org/wiki/Line_Delimited_JSON) support
+* [NDJSON](http://ndjson.org/) support
+* simple and dependency free
+* easy to audit
 
 
 ## Example
@@ -18,7 +17,7 @@ Write two JSON objects to stdout:
 ```js
 var LDJSONStream = require('ld-jsonstream');
 
-var ls = new LDJSONStream();
+var ls = new LDJSONStream({ objectMode: true });
 
 ls.on('data', function(obj) {
   console.log(obj);
@@ -47,13 +46,14 @@ opts:
 * flush {Boolean, default true} whether to flush any remaining data on writer end
 * debug {Boolean, default false} whether to do extra console logging or not
 * hide {Boolean, default false} whether to suppress errors or not (used in tests)
+* readableObjectMode {Boolean, default false} Sets objectMode for the readable side of
+  the stream. Note: the writable side of the stream can never be in object mode. If
+  you have such a case, you don't need this module.
+* objectMode {Boolean, default false} alias for readableObjectMode
 
 events:
 * "data" {Object}  emits one object at a time
 * "end"  stream end
-
-Read a binary stream that contains new line separated JSON objects and emit each
-as a JavaScript object.
 
 ### this.buffer
 * {Buffer} buffer, can be used to manually flush any remaining bytes
@@ -73,7 +73,7 @@ $ npm test
 
 ISC
 
-Copyright (c) 2014, 2015, 2016 Tim Kuijsten
+Copyright (c) 2014, 2015, 2016, 2019 Tim Kuijsten
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014, 2015, 2016 Tim Kuijsten
+ * Copyright (c) 2014, 2015, 2016, 2019 Tim Kuijsten
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -24,12 +24,15 @@ var Transform = require('stream').Transform;
 /**
  * LDJSONStream
  *
- * Read a binary stream that contains new line separated JSON objects and emit each
- * as a JavaScript object.
+ * Parse a binary stream of stringified new line separated JSON objects and
+ * write to output. Implements a Transform stream.
  *
- * Goal: simple, dependency free and easy to audit in an attempt to be secure.
- *
- * Note: implements both LDJSON and NDJSON.
+ * Features:
+ *   * simple
+ *   * dependency free
+ *   * easy to audit
+ *   * LDJSON support
+ *   * NDJSON support
  *
  * @param {Object} [opts] object containing optional parameters
  *
@@ -40,6 +43,10 @@ var Transform = require('stream').Transform;
  *  flush {Boolean, default true} whether to flush any remaining data on writer end
  *  debug {Boolean, default false} whether to do extra console logging or not
  *  hide {Boolean, default false} whether to suppress errors or not (used in tests)
+ *  readableObjectMode {Boolean, default false} Sets objectMode for the readable side of
+ *    the stream. Note: the writable side of the stream can never be in object mode. If
+ *    you have such a case, you don't need this module.
+ *  objectMode {Boolean, default false} alias for readableObjectMode
  *
  * @event "data" {Object}  emits one object at a time
  * @event "end"  emitted once the underlying cursor is closed
@@ -54,7 +61,16 @@ function LDJSONStream(opts) {
   if (opts.flush != null && typeof opts.flush !== 'boolean') { throw new TypeError('opts.flush must be a boolean'); }
   if (opts.debug != null && typeof opts.debug !== 'boolean') { throw new TypeError('opts.debug must be a boolean'); }
   if (opts.hide != null && typeof opts.hide !== 'boolean') { throw new TypeError('opts.hide must be a boolean'); }
+  if (opts.writableObjectMode) { throw new Error('writableObjectMode is not supported, line delimited JSON is required as input'); }
+  if (opts.objectMode != null && typeof opts.objectMode !== 'boolean') { throw new TypeError('opts.objectMode must be a boolean'); }
+  if (opts.readableObjectMode != null && typeof opts.readableObjectMode !== 'boolean') {
+    throw new TypeError('opts.readableObjectMode must be a boolean');
+  }
 
+  if (opts.objectMode) {
+    opts.readableObjectMode = opts.objectMode;
+    delete opts.objectMode;
+  }
   Transform.call(this, opts);
 
   this._maxDocLength = opts.maxDocLength || 16777216;
@@ -65,12 +81,10 @@ function LDJSONStream(opts) {
   this._flushOpt = opts.flush != null ? opts.flush : true;
   this._debug = opts.debug || false;
   this._hide = !!opts.hide;
+  this._objectMode = opts.readableObjectMode;
 
   this.bytesRead = 0;
   this.docsRead  = 0;
-
-  this._writableState.objectMode = false;
-  this._readableState.objectMode = true;
 
   this._docptr = 0;
 
@@ -151,8 +165,12 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
   this.buffer = this.buffer.slice(this._docptr);
   this._docptr = 0;
 
-  // push the parsed doc out to the reader
-  this.push(obj);
+  // push the raw or parsed doc out to the reader
+  if (this._objectMode) {
+    this.push(obj);
+  } else {
+    this.push(rawdoc);
+  }
   this.docsRead++;
 
   // check if there might be any new document that can be parsed
@@ -192,9 +210,12 @@ LDJSONStream.prototype._flush = function _flush(cb) {
 
   try {
     obj = JSON.parse(this.buffer);
-
-    // push the parsed doc out to the reader
-    this.push(obj);
+    // push the raw or parsed doc out to the reader
+    if (this._objectMode) {
+      this.push(obj);
+    } else {
+      this.push(this.buffer);
+    }
     this.docsRead++;
 
     this._reset();
