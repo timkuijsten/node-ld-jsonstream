@@ -281,6 +281,21 @@ tasks.push(function(done) {
   ls.end(JSON.stringify(obj1) + '\r\n' + JSON.stringify(obj2));
 });
 
+/* should handle large input buffers */
+tasks.push(function(done) {
+  var ls = new LDJSONStream({ objectMode: true });
+  var i = 0;
+  ls.on('data', function(obj) {
+    i++;
+    assert.deepEqual(obj, {});
+  });
+  ls.on('end', function() {
+    assert.strictEqual(i, 10000);
+    done();
+  });
+  ls.end('{}\n'.repeat(10000));
+});
+
 async.series(tasks, function(err) {
   if (err) {
     console.error(err);
