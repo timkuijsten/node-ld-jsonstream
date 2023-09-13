@@ -105,79 +105,80 @@ LDJSONStream.prototype._reset = function _reset() {
 
 // read up to the next newline
 LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
-  if (this._debug) { console.log('_parseDocs'); }
-
-  if (this._maxDocs && this.docsRead >= this._maxDocs) { cb(); return; }
-
-  // move pointer to first newline character
-  var found = false;
-  while (!found && this._docptr < this.buffer.length) {
-    if (~[0x0a, 0x0d].indexOf(this.buffer[this._docptr])) {
-      found = true;
+  for(;;) {
+    if (this._debug) { console.log('_parseDocs'); }
+  
+    if (this._maxDocs && this.docsRead >= this._maxDocs) { cb(); return; }
+  
+    // move pointer to first newline character
+    var found = false;
+    while (!found && this._docptr < this.buffer.length) {
+      if (~[0x0a, 0x0d].indexOf(this.buffer[this._docptr])) {
+        found = true;
+      }
+      this._docptr++;
     }
-    this._docptr++;
-  }
-
-  // if a newline is found, check if it's a carriage return followed by a newline
-  var crnl = false;
-  if (found && this._docptr < this.buffer.length && this.buffer[this._docptr] === 0x0d && this.buffer[this._docptr + 1] === 0x0a) {
-    this._docptr++;
-    crnl = true;
-  }
-
-  // enforce max doc length
-  if (this._docptr - (crnl ? 2 : 1) > this._maxDocLength) {
-    // discard buffer
-    this._reset();
-    cb(new Error('document exceeds configured maximum length'));
-    return;
-  }
-
-  if (!found) {
-    // wait for more chunks
-    cb();
-    return;
-  }
-
-  // since a newline is found, try to read and parse it as JSON
-
-  var rawdoc = this.buffer.slice(0, this._docptr);
-  var obj;
-
-  try {
-    if (this._debug) { console.log('parse', rawdoc.toString()); }
-    obj = JSON.parse(rawdoc);
-  } catch (err) {
-    if (this._debug) { console.error(err, rawdoc); }
-
-    // support multi-line JSON
-    if (err.message === 'Unexpected end of JSON input') {
-      // look for next newline
-      this._parseDocs(cb);
-    } else {
+  
+    // if a newline is found, check if it's a carriage return followed by a newline
+    var crnl = false;
+    if (found && this._docptr < this.buffer.length && this.buffer[this._docptr] === 0x0d && this.buffer[this._docptr + 1] === 0x0a) {
+      this._docptr++;
+      crnl = true;
+    }
+  
+    // enforce max doc length
+    if (this._docptr - (crnl ? 2 : 1) > this._maxDocLength) {
+      // discard buffer
       this._reset();
-      cb(err);
+      cb(new Error('document exceeds configured maximum length'));
+      return;
     }
-    return;
-  }
-
-  // shift document from internal buffer and nullify expected document length
-  this.buffer = this.buffer.slice(this._docptr);
-  this._docptr = 0;
-
-  // push the raw or parsed doc out to the reader
-  if (this._objectMode) {
-    this.push(obj);
-  } else {
-    this.push(rawdoc);
-  }
-  this.docsRead++;
-
-  // check if there might be any new document that can be parsed
-  if (this.buffer.length) {
-    this._parseDocs(cb);
-  } else {
-    cb();
+  
+    if (!found) {
+      // wait for more chunks
+      cb();
+      return;
+    }
+  
+    // since a newline is found, try to read and parse it as JSON
+  
+    var rawdoc = this.buffer.slice(0, this._docptr);
+    var obj;
+  
+    try {
+      if (this._debug) { console.log('parse', rawdoc.toString()); }
+      obj = JSON.parse(rawdoc);
+    } catch (err) {
+      if (this._debug) { console.error(err, rawdoc); }
+  
+      // support multi-line JSON
+      if (err.message === 'Unexpected end of JSON input') {
+        // look for next newline
+        this._parseDocs(cb);
+      } else {
+        this._reset();
+        cb(err);
+      }
+      return;
+    }
+  
+    // shift document from internal buffer and nullify expected document length
+    this.buffer = this.buffer.slice(this._docptr);
+    this._docptr = 0;
+  
+    // push the raw or parsed doc out to the reader
+    if (this._objectMode) {
+      this.push(obj);
+    } else {
+      this.push(rawdoc);
+    }
+    this.docsRead++;
+  
+    // check if there might be any new document that can be parsed
+    if (!this.buffer.length) {
+      cb();
+      return;
+    }
   }
 };
 
