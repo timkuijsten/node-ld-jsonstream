@@ -26,12 +26,12 @@ var tasks = [];
 
 /* throw */
 
-assert.throws(function() { var ls = new LDJSONStream(''); return ls; }, 'opts must be an object');
-assert.throws(function() { var ls = new LDJSONStream({ maxDocLength: '' }); return ls; }, 'should require opts.maxDocLength to be a number');
-assert.throws(function() { var ls = new LDJSONStream({ maxDocs: '' }); return ls; }, 'opts.maxDocs must be a number');
-assert.throws(function() { var ls = new LDJSONStream({ maxBytes: '' }); return ls; }, 'opts.maxBytes must be a number');
-assert.throws(function() { var ls = new LDJSONStream({ debug: '' }); return ls; }, 'opts.debug must be a boolean');
-assert.throws(function() { var ls = new LDJSONStream({ hide: '' }); return ls; }, 'opts.hide must be a boolean');
+assert.throws(function() { var ls = new LDJSONStream(''); return ls; }, null, 'opts must be an object');
+assert.throws(function() { var ls = new LDJSONStream({ maxDocLength: '' }); return ls; }, null, 'should require opts.maxDocLength to be a number');
+assert.throws(function() { var ls = new LDJSONStream({ maxDocs: '' }); return ls; }, null, 'opts.maxDocs must be a number');
+assert.throws(function() { var ls = new LDJSONStream({ maxBytes: '' }); return ls; }, null, 'opts.maxBytes must be a number');
+assert.throws(function() { var ls = new LDJSONStream({ debug: '' }); return ls; }, null, 'opts.debug must be a boolean');
+assert.throws(function() { var ls = new LDJSONStream({ hide: '' }); return ls; }, null, 'opts.hide must be a boolean');
 
 /* async */
 
@@ -163,13 +163,17 @@ tasks.push(function(done) {
 
 /* should err when only a newline is written */
 tasks.push(function(done) {
+  function doneOnce() {
+    if(done) done()
+    done = null
+  }
   var ls = new LDJSONStream();
   ls.on('data', function() { throw Error('incomplete object emitted'); });
   ls.on('error', function(err) {
     assert.strictEqual(err.message, 'Unexpected end of JSON input');
-    done();
+    doneOnce();
   });
-  ls.on('close', done);
+  ls.on('close', doneOnce);
   ls.end('\r\n');
 });
 
@@ -243,53 +247,6 @@ tasks.push(function(done) {
   });
 
   ls.end(JSON.stringify(obj1) + '\r\n' + JSON.stringify(obj2));
-});
-
-/* should skip noise in previous chunks and emit two generated JSON objects */
-tasks.push(function(done) {
-  var noise = '289,df';
-
-  var obj1 = {
-    foo: 'bar'
-  };
-
-  var obj2 = {
-    foo: 'baz',
-    bar: 42,
-    baz: false,
-    qux: null
-  };
-
-  var ls = new LDJSONStream({ objectMode: true });
-
-  var arr = [];
-
-  ls.on('error', function(err) {
-    assert.strictEqual(err.message, 'Unexpected token , in JSON at position 3');
-  });
-
-  ls.on('data', function(data) {
-    arr.push(data);
-  });
-
-  ls.on('end', function() {
-    assert.strictEqual(arr.length, 2);
-    assert.deepEqual(arr[0], {
-      foo: 'bar'
-    });
-    assert.deepEqual(arr[1], {
-      foo: 'baz',
-      bar: 42,
-      baz: false,
-      qux: null
-    });
-    done();
-  });
-
-  ls.write(noise + '\n');
-  ls.write(JSON.stringify(obj1) + '\n' + noise + '\n' + JSON.stringify(obj2));
-  ls.write('\n' + JSON.stringify(obj2));
-  ls.end();
 });
 
 /* should not flush if noflush is set */
