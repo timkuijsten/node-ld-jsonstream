@@ -152,7 +152,7 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
       // support multi-line JSON
       if (err.message === 'Unexpected end of JSON input') {
         // look for next newline
-        this._parseDocs(cb);
+        continue;
       } else {
         this._reset();
         cb(err);
