@@ -7,9 +7,9 @@
     "url": "https://github.com/timkuijsten"
   },
   "license": "ISC",
-  "description": "Simple and secure line delimited JSON stream parser",
+  "description": "Simple and secure newline delimited JSON stream parser",
   "keywords": [
-    "line",
+    "newline",
     "delimited",
     "json",
     "stream",
