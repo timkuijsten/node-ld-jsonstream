@@ -39,7 +39,6 @@ var Transform = require('stream').Transform;
  *  maxDocs {Number, default infinite} maximum number of documents to receive
  *  maxBytes {Number, default infinite} maximum number of bytes to receive
  *  flush {Boolean, default true} whether to flush any remaining data on writer end
- *  debug {Boolean, default false} whether to do extra console logging or not
  *  hide {Boolean, default false} whether to suppress errors or not (used in tests)
  *  readableObjectMode {Boolean, default false} Sets objectMode for the readable side of
  *    the stream. Note: the writable side of the stream can never be in object mode. If
@@ -57,7 +56,6 @@ function LDJSONStream(opts) {
   if (opts.maxDocs != null && typeof opts.maxDocs !== 'number') { throw new TypeError('opts.maxDocs must be a number'); }
   if (opts.maxBytes != null && typeof opts.maxBytes !== 'number') { throw new TypeError('opts.maxBytes must be a number'); }
   if (opts.flush != null && typeof opts.flush !== 'boolean') { throw new TypeError('opts.flush must be a boolean'); }
-  if (opts.debug != null && typeof opts.debug !== 'boolean') { throw new TypeError('opts.debug must be a boolean'); }
   if (opts.hide != null && typeof opts.hide !== 'boolean') { throw new TypeError('opts.hide must be a boolean'); }
   if (opts.writableObjectMode) { throw new Error('writableObjectMode is not supported, line delimited JSON is required as input'); }
   if (opts.objectMode != null && typeof opts.objectMode !== 'boolean') { throw new TypeError('opts.objectMode must be a boolean'); }
@@ -77,7 +75,6 @@ function LDJSONStream(opts) {
   this._maxDocs = opts.maxDocs;
 
   this._flushOpt = opts.flush != null ? opts.flush : true;
-  this._debug = opts.debug || false;
   this._hide = !!opts.hide;
   this._objectMode = opts.readableObjectMode;
 
@@ -95,8 +92,6 @@ module.exports = LDJSONStream;
 
 // reset internal buffer
 LDJSONStream.prototype._reset = function _reset() {
-  if (this._debug) { console.log('_reset'); }
-
   this.buffer = Buffer.alloc(0);
   this._docptr = 0;
 };
@@ -104,8 +99,6 @@ LDJSONStream.prototype._reset = function _reset() {
 // read up to the next newline
 LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
   for (;;) {
-    if (this._debug) { console.log('_parseDocs'); }
-
     if (this._maxDocs && this.docsRead >= this._maxDocs) { cb(); return; }
 
     // move pointer to first newline character
@@ -144,11 +137,8 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
     var obj;
 
     try {
-      if (this._debug) { console.log('parse', rawdoc.toString()); }
       obj = JSON.parse(rawdoc);
     } catch (err) {
-      if (this._debug) { console.error(err, rawdoc); }
-
       // support multi-line JSON
       if (err.message === 'Unexpected end of JSON input') {
         // look for next newline
@@ -181,8 +171,6 @@ LDJSONStream.prototype._parseDocs = function _parseDocs(cb) {
 };
 
 LDJSONStream.prototype._transform = function _transform(chunk, encoding, cb) {
-  if (this._debug) { console.log('_transform', chunk); }
-
   this.bytesRead += chunk.length;
 
   if (this._maxBytes && this.bytesRead > this._maxBytes) {
@@ -199,8 +187,6 @@ LDJSONStream.prototype._transform = function _transform(chunk, encoding, cb) {
 
 // parse any final object that does not end with a newline
 LDJSONStream.prototype._flush = function _flush(cb) {
-  if (this._debug) { console.log('_flush'); }
-
   if (!this._flushOpt) { cb(); return; }
   if (!this.buffer.length) { cb(); return; }
   if (this._maxDocs && this.docsRead >= this._maxDocs) { cb(); return; }
@@ -220,7 +206,6 @@ LDJSONStream.prototype._flush = function _flush(cb) {
     this._reset();
     cb();
   } catch (err) {
-    if (this._debug) { console.error(err, this.buffer); }
     this._reset();
     cb(err);
   }

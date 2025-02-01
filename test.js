@@ -28,7 +28,6 @@ assert.throws(function() { var ls = new LDJSONStream(''); return ls; }, null, 'o
 assert.throws(function() { var ls = new LDJSONStream({ maxDocLength: '' }); return ls; }, null, 'should require opts.maxDocLength to be a number');
 assert.throws(function() { var ls = new LDJSONStream({ maxDocs: '' }); return ls; }, null, 'opts.maxDocs must be a number');
 assert.throws(function() { var ls = new LDJSONStream({ maxBytes: '' }); return ls; }, null, 'opts.maxBytes must be a number');
-assert.throws(function() { var ls = new LDJSONStream({ debug: '' }); return ls; }, null, 'opts.debug must be a boolean');
 assert.throws(function() { var ls = new LDJSONStream({ hide: '' }); return ls; }, null, 'opts.hide must be a boolean');
 
 /* async */
