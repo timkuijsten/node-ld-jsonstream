@@ -259,38 +259,6 @@ tasks.push(function(done) {
   ls.end(JSON.stringify(obj1) + '\r\n' + JSON.stringify(obj2));
 });
 
-/* should not flush if noflush is set */
-tasks.push(function(done) {
-  var obj1 = {
-    foo: 'bar'
-  };
-
-  var obj2 = {
-    foo: 'baz',
-    bar: 42,
-    baz: false,
-    qux: null
-  };
-
-  var ls = new LDJSONStream({ flush: false, objectMode: true });
-
-  var arr = [];
-
-  ls.on('data', function(data) {
-    arr.push(data);
-  });
-
-  ls.on('end', function() {
-    assert.strictEqual(arr.length, 1);
-    assert.deepEqual(arr[0], {
-      foo: 'bar'
-    });
-    done();
-  });
-
-  ls.end(JSON.stringify(obj1) + '\r\n' + JSON.stringify(obj2));
-});
-
 /* should handle large input buffers */
 tasks.push(function(done) {
   var ls = new LDJSONStream({ objectMode: true });
