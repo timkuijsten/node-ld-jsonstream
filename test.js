@@ -182,6 +182,24 @@ tasks.push(function(done) {
   ls.end('{ \r\n "foo": \n "bar" }\n');
 });
 
+/* should support both \n and \r\n line separators */
+tasks.push(function(done) {
+  var ls = new LDJSONStream();
+  var count = 0;
+  ls.on('data', function() {
+    count++;
+  });
+  ls.on('end', function() {
+    if (count != 3) {
+      done(new Error('incorrect number of data items: ' + count));
+    } else {
+      done();
+    }
+  });
+  ls.end('{}\n{}\r\n{}\n');
+});
+
+
 /* should deserialize a generated JSON string correctly */
 tasks.push(function(done) {
   var obj = {
