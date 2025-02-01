@@ -97,7 +97,7 @@ module.exports = LDJSONStream;
 LDJSONStream.prototype._reset = function _reset() {
   if (this._debug) { console.log('_reset'); }
 
-  this.buffer = new Buffer(0);
+  this.buffer = Buffer.alloc(0);
   this._docptr = 0;
 };
 
