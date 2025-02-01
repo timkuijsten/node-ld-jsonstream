@@ -14,8 +14,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-'use strict';
-
 var assert = require('assert');
 
 var async = require('async');
