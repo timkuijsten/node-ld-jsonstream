@@ -38,7 +38,6 @@ var Transform = require('stream').Transform;
  *  maxDocLength {Number, default 16777216} maximum JSON document size in bytes
  *  maxDocs {Number, default infinite} maximum number of documents to receive
  *  maxBytes {Number, default infinite} maximum number of bytes to receive
- *  hide {Boolean, default false} whether to suppress errors or not (used in tests)
  *  readableObjectMode {Boolean, default false} Sets objectMode for the readable side of
  *    the stream. Note: the writable side of the stream can never be in object mode. If
  *    you have such a case, you don't need this module.
@@ -54,7 +53,6 @@ function LDJSONStream(opts) {
   if (opts.maxDocLength != null && typeof opts.maxDocLength !== 'number') { throw new TypeError('opts.maxDocLength must be a number'); }
   if (opts.maxDocs != null && typeof opts.maxDocs !== 'number') { throw new TypeError('opts.maxDocs must be a number'); }
   if (opts.maxBytes != null && typeof opts.maxBytes !== 'number') { throw new TypeError('opts.maxBytes must be a number'); }
-  if (opts.hide != null && typeof opts.hide !== 'boolean') { throw new TypeError('opts.hide must be a boolean'); }
   if (opts.writableObjectMode) { throw new Error('writableObjectMode is not supported, line delimited JSON is required as input'); }
   if (opts.objectMode != null && typeof opts.objectMode !== 'boolean') { throw new TypeError('opts.objectMode must be a boolean'); }
   if (opts.readableObjectMode != null && typeof opts.readableObjectMode !== 'boolean') {
@@ -72,7 +70,6 @@ function LDJSONStream(opts) {
   this._maxBytes = opts.maxBytes;
   this._maxDocs = opts.maxDocs;
 
-  this._hide = !!opts.hide;
   this._objectMode = opts.readableObjectMode;
 
   this.bytesRead = 0;
