@@ -163,17 +163,12 @@ tasks.push(function(done) {
 
 /* should err when only a newline is written */
 tasks.push(function(done) {
-  function doneOnce() {
-    if(done) done()
-    done = null
-  }
   var ls = new LDJSONStream();
   ls.on('data', function() { throw Error('incomplete object emitted'); });
   ls.on('error', function(err) {
     assert.strictEqual(err.message, 'Unexpected end of JSON input');
-    doneOnce();
+    done();
   });
-  ls.on('close', doneOnce);
   ls.end('\r\n');
 });
 
