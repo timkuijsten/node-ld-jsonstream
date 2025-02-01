@@ -53,8 +53,6 @@ opts:
 * maxDocLength {Number, default 16777216} maximum JSON document size in bytes
 * maxDocs {Number, default infinite} maximum number of documents to receive
 * maxBytes {Number, default infinite} maximum number of bytes to receive
-* flush {Boolean, default true} whether to flush any remaining data on writer end
-* hide {Boolean, default false} whether to suppress errors or not (used in tests)
 * readableObjectMode {Boolean, default false} Sets objectMode for the readable side of
   the stream. Note: the writable side of the stream can never be in object mode. If
   you have such a case, you don't need this module.
@@ -63,9 +61,6 @@ opts:
 events:
 * "data" {Object}  emits one object at a time
 * "end"  stream end
-
-### this.buffer
-* {Buffer} buffer, can be used to manually flush any remaining bytes
 
 ### this.bytesRead
 * {Number} total number of bytes read
